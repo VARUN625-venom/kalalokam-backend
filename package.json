@@ -8,11 +8,12 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "mongoose": "^8.0.0",
-    "google-auth-library": "^9.14.1",
     "cookie-session": "^2.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "cors": "^2.8.5"
+    "express": "^4.19.2",
+    "firebase": "^12.15.0",
+    "google-auth-library": "^9.14.1",
+    "mongoose": "^8.0.0"
   }
 }
