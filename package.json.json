@@ -1,7 +1,7 @@
 {
   "name": "kalalokam-backend",
   "version": "1.0.0",
-  "description": "Backend for Kalalokam by Sri — handmade art store",
+  "description": "Kalalokam by Sri - Handmade art store",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-    "mongoose": "^8.0.0",
     "google-auth-library": "^9.14.1",
     "cookie-session": "^2.1.0",
     "dotenv": "^16.4.5",

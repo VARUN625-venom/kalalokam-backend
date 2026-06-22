@@ -1,0 +1,54 @@
+require('dotenv').config();
+const express = require('express');
+const cookieSession = require('cookie-session');
+const cors = require('cors');
+const { OAuth2Client } = require('google-auth-library');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 4000;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+app.use(express.json());
+app.use(cors({ origin: true, credentials: true }));
+app.use(cookieSession({name:'kalalokam_session',keys:[process.env.SESSION_SECRET||'secret'],maxAge:30*24*60*60*1000,sameSite:'lax'}));
+app.use(express.static(path.join(__dirname,'public')));
+
+const users={};const userIdCounter={val:1};const products=[];const carts={};const orders={};const orderIdCounter={val:1};const phoneOtps={};
+
+function seedProducts(){
+  const NAMES=[["Cheriyal Scroll Painting","Hand-painted scroll",1],["Kalamkari Cotton Dupatta","Block-printed dupatta",2],["Terracotta Ganesha Idol","Hand-shaped idol",3],["Madhubani Peacock Canvas","Intricate peacock",1],["Pochampally Ikat Table Runner","Hand-woven ikat",2],["Warli Tribal Wall Art","Tribal art",4],["Hand-painted Terracotta Diya","Hand-painted diyas",3],["Nirmal Wooden Elephant","Wooden elephant",4],["Kalamkari Wall Hanging","Wall panel",1],["Bidri Bowl","Decorative bowl",3],["Cheriyal Mask","Wooden mask",4],["Block Print Cushion","Cushion cover",2],["Dokra Figurine","Brass figurine",4],["Pichwai Canvas","Pichwai painting",1],["Etikoppaka Toy Set","Toy set",4],["Kondapalli Doll","Wooden doll",4],["Kantha Throw","Cotton throw",2],["Banjara Tapestry","Mirror tapestry",2],["Terracotta Wall Plate","Wall plate",3],["Gond Art Canvas","Tree of life",1]];
+  const CATS={1:'Paintings',2:'Textiles',3:'Home decor',4:'Folk art'};
+  NAMES.forEach((n,i)=>{const price=600+(i*73)%2400;products.push({id:i+1,title:n[0],description:n[1],category:CATS[n[2]],price:price,oldPrice:null,isNew:i%5===0,seed:i});});
+  console.log('Seeded '+products.length+' products');
+}
+seedProducts();
+
+function publicUser(u){if(!u)return null;return{id:u.id,email:u.email,name:u.name,picture_url:u.picture_url,phone:u.phone||null,phoneVerified:!!u.phone_verified,address:{line1:u.address_line1||'',line2:u.address_line2||'',city:u.city||'',state:u.state||'',pincode:u.pincode||''}};}
+function requireAuth(req,res,next){if(!req.session.userId)return res.status(401).json({error:'not_logged_in'});next();}
+function getCartForUser(uid){const items=carts[uid]||{};return Object.entries(items).map(([pid,qty])=>{const p=products.find(x=>x.id===parseInt(pid));return p?{productId:p.id,title:p.title,quantity:qty,price:p.price,seed:p.seed}:null;}).filter(Boolean);}
+
+app.post('/api/auth/google',async(req,res)=>{const{credential}=req.body;try{const ticket=await googleClient.verifyIdToken({idToken:credential,audience:GOOGLE_CLIENT_ID});const payload=ticket.getPayload();let user=Object.values(users).find(u=>u.google_sub===payload.sub);if(!user){user={id:userIdCounter.val++,google_sub:payload.sub,email:payload.email,name:payload.name||payload.email,picture_url:payload.picture||null,phone:null,phone_verified:false,address_line1:'',address_line2:'',city:'',state:'',pincode:''};users[user.id]=user;carts[user.id]={}}req.session.userId=user.id;res.json({user:publicUser(user)});}catch(e){res.status(401).json({error:'invalid_token'});}});
+
+app.post('/api/auth/logout',(req,res)=>{req.session=null;res.json({ok:true});});
+app.get('/api/auth/me',(req,res)=>{if(!req.session.userId)return res.json({user:null});const user=users[req.session.userId];if(!user){req.session=null;return res.json({user:null});}res.json({user:publicUser(user)});});
+app.get('/api/products',(req,res)=>res.json({products}));
+
+app.get('/api/cart',requireAuth,(req,res)=>res.json({items:getCartForUser(req.session.userId)}));
+app.post('/api/cart/add',requireAuth,(req,res)=>{const{productId,quantity=1}=req.body;if(!products.find(p=>p.id===productId))return res.status(404).json({error:'not_found'});if(!carts[req.session.userId])carts[req.session.userId]={};carts[req.session.userId][productId]=(carts[req.session.userId][productId]||0)+quantity;res.json({items:getCartForUser(req.session.userId)});});
+app.post('/api/cart/update',requireAuth,(req,res)=>{const{productId,quantity}=req.body;if(quantity<=0)delete carts[req.session.userId][productId];else carts[req.session.userId][productId]=quantity;res.json({items:getCartForUser(req.session.userId)});});
+app.post('/api/cart/remove',requireAuth,(req,res)=>{delete carts[req.session.userId][req.body.productId];res.json({items:getCartForUser(req.session.userId)});});
+
+app.put('/api/profile/address',requireAuth,(req,res)=>{const{line1='',line2='',city='',state='',pincode=''}=req.body||{};const user=users[req.session.userId];if(!line1.trim()||!city.trim()||!state.trim()||!pincode.trim())return res.status(400).json({error:'missing'});user.address_line1=line1.trim();user.address_line2=line2.trim();user.city=city.trim();user.state=state.trim();user.pincode=pincode.trim();res.json({user:publicUser(user)});});
+
+app.post('/api/profile/phone/send-otp',requireAuth,(req,res)=>{const{phone}=req.body||{};if(!phone)return res.status(400).json({error:'invalid'});const code=String(Math.floor(100000+Math.random()*900000));phoneOtps[req.session.userId]={code,phone,expiresAt:Date.now()+5*60*1000,attempts:0};console.log(`[DEV] OTP: ${code}`);res.json({ok:true,dev_only_code:code});});
+
+app.post('/api/profile/phone/verify-otp',requireAuth,(req,res)=>{const{code}=req.body||{};const otp=phoneOtps[req.session.userId];if(!otp)return res.status(400).json({error:'no_otp'});if(Date.now()>otp.expiresAt){delete phoneOtps[req.session.userId];return res.status(400).json({error:'expired'});}if(otp.attempts>=5){delete phoneOtps[req.session.userId];return res.status(429).json({error:'too_many'});}if(String(code).trim()!==otp.code){otp.attempts++;return res.status(400).json({error:'wrong'});}const user=users[req.session.userId];user.phone=otp.phone;user.phone_verified=true;delete phoneOtps[req.session.userId];res.json({user:publicUser(user)});});
+
+app.post('/api/checkout',requireAuth,(req,res)=>{const cart=getCartForUser(req.session.userId);if(cart.length===0)return res.status(400).json({error:'empty'});const subtotal=cart.reduce((s,c)=>s+c.price*c.quantity,0);const shipping=subtotal>2000?0:99;const orderId=orderIdCounter.val++;orders[orderId]={id:orderId,userId:req.session.userId,items:cart,subtotal,shipping,total:subtotal+shipping,createdAt:new Date().toISOString()};carts[req.session.userId]={};res.json({orderId,subtotal,shipping,total:subtotal+shipping});});
+
+app.get('/api/orders',requireAuth,(req,res)=>{const userOrders=Object.values(orders).filter(o=>o.userId===req.session.userId);res.json({orders:userOrders});});
+
+app.listen(PORT,()=>console.log(`Kalalokam at http://localhost:${PORT}`));
