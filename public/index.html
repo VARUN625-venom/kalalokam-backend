@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google-signin-client_id" content="938334556620-tce9iq5sjg8dglft7trbs1416i6povrd.apps.googleusercontent.com">
+  <title>Kalalokam by Sri — Handmade Art Store</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode.js/1.4.4/qrcode.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9f7f4;
+      color: #333;
+    }
+
+    header {
+      background: #fff8f3;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #8b4513;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      background: #8b4513;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    button:hover {
+      background: #6d3610;
+    }
+
+    button.secondary {
+      background: #ddd;
+      color: #333;
+    }
+
+    button.secondary:hover {
+      background: #ccc;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Main Shop View */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #8b4513, #d4a574);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3rem;
+    }
+
+    .product-details {
+      padding: 1rem;
+    }
+
+    .product-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .product-price {
+      font-size: 1.2rem;
+      color: #8b4513;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-price.old {
+      text-decoration: line-through;
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .product-actions input {
+      width: 60px;
+      padding: 0.4rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .product-actions button {
+      flex: 1;
+      padding: 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    /* Cart View */
+    .cart-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item-details {
+      flex: 1;
+    }
+
+    .cart-item-price {
+      font-weight: bold;
+      color: #8b4513;
+      min-width: 100px;
+      text-align: right;
+    }
+
+    .cart-summary {
+      background: #f9f7f4;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+    }
+
+    .summary-row.total {
+      font-size: 1.3rem;
+      font-weight: bold;
+      border-top: 2px solid #ddd;
+      padding-top: 1rem;
+      color: #8b4513;
+    }
+
+    .cart-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .cart-actions button {
+      flex: 1;
+      padding: 1rem;
+      font-size: 1rem;
+    }
+
+    /* Checkout View */
+    .checkout-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .qr-container {
+      text-align: center;
+      padding: 2rem;
+      background: #f9f7f4;
+      border-radius: 8px;
+      margin: 2rem 0;
+    }
+
+    #qrcode {
+      display: inline-block;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+    }
+
+    .upi-details {
+      background: #fffacd;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid #ffc107;
+    }
+
+    .upi-details p {
+      margin: 0.5rem 0;
+    }
+
+    .upi-id {
+      font-weight: bold;
+      font-family: monospace;
+      font-size: 1.1rem;
+    }
+
+    /* Admin Dashboard */
+    .admin-container {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+    }
+
+    .admin-login {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .admin-login input {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 1rem 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .orders-table th,
+    .orders-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .orders-table th {
+      background: #f9f7f4;
+      font-weight: bold;
+    }
+
+    .orders-table tr:hover {
+      background: #f9f7f4;
+    }
+
+    .order-status {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .order-status.pending_payment {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .order-status.paid {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .order-status.shipped {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .order-status.delivered {
+      background: #f3e5f5;
+      color: #6a1b9a;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .breadcrumb {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .breadcrumb button {
+      background: none;
+      color: #8b4513;
+      text-decoration: underline;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .breadcrumb button:hover {
+      color: #6d3610;
+    }
+
+    .order-detail {
+      background: #f9f7f4;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+
+    .order-items-list {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.8rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🎨 Kalalokam by Sri</h1>
+    <div class="nav-right">
+      <div class="user-info" id="userInfo" class="hidden">
+        <img id="userAvatar" class="user-avatar" />
+        <span id="userName"></span>
+      </div>
+      <div id="googleSignInButton"></div>
+      <button id="logoutBtn" class="hidden" onclick="logout()">Logout</button>
+      <button id="adminBtn" class="hidden" onclick="goToAdmin()">Admin</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Shop View -->
+    <div id="shopView" class="view-section active">
+      <h2>Handmade Art & Crafts</h2>
+      <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- Cart View -->
+    <div id="cartView" class="view-section">
+      <div class="breadcrumb">
+        <button onclick="goToShop()">Shop</button>
+        <span>/</span>
+        <span>Cart</span>
+      </div>
+      <div class="cart-container">
+        <h2>Your Cart</h2>
+        <div id="cartItems"></div>
+        <div class="cart-summary">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span id="subtotal">₹0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping:</span>
+            <span id="shipping">₹99.00</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total:</span>
+            <span id="total">₹0.00</span>
+          </div>
+        </div>
+        <div class="cart-actions">
+          <button class="secondary" onclick="goToShop()">Continue Shopping</button>
+          <button id="checkoutBtn" onclick="goToCheckout()">Proceed to Payment</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout View -->
+    <div id="checkoutView" class="view-section">
+      <div class="breadcrumb">
+        <button onclick="goToShop()">Shop</button>
+        <span>/</span>
+        <button onclick="goToCart()">Cart</button>
+        <span>/</span>
+        <span>Payment</span>
+      </div>
+      <div class="checkout-container">
+        <h2>Complete Your Payment</h2>
+        
+        <div class="order-detail">
+          <h3>Order Summary</h3>
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span id="co-subtotal">₹0.00</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping:</span>
+            <span id="co-shipping">₹99.00</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total Amount:</span>
+            <span id="co-total">₹0.00</span>
+          </div>
+        </div>
+
+        <div class="upi-details">
+          <p><strong>📱 Scan with UPI App</strong></p>
+          <p>Use Google Pay, PhonePe, BHIM, or any UPI app to scan the QR code below and complete payment.</p>
+        </div>
+
+        <div class="qr-container">
+          <p><strong>Scan to Pay</strong></p>
+          <div id="qrcode"></div>
+        </div>
+
+        <div class="upi-details">
+          <p><strong>Or pay directly to:</strong></p>
+          <p class="upi-id">varuntej.g56-1@oksbi</p>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+          <p style="color: #666; margin-bottom: 1rem;">After payment, click below to confirm:</p>
+          <button id="confirmPaymentBtn" onclick="confirmPayment()" style="width: 100%;">✓ Payment Completed</button>
+        </div>
+
+        <div style="margin-top: 1rem;">
+          <button class="secondary" onclick="goToCart()" style="width: 100%;">← Back to Cart</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders View -->
+    <div id="ordersView" class="view-section">
+      <div class="breadcrumb">
+        <button onclick="goToShop()">Shop</button>
+        <span>/</span>
+        <span>My Orders</span>
+      </div>
+      <div class="checkout-container">
+        <h2>My Orders</h2>
+        <div id="ordersContainer"></div>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminView" class="view-section">
+      <div class="admin-container">
+        <h2>Admin Dashboard</h2>
+        
+        <div id="adminLogin" class="admin-login">
+          <h3>Admin Login</h3>
+          <input type="password" id="adminPassword" placeholder="Enter admin password">
+          <button onclick="loginAdmin()" style="width: 100%; margin-top: 1rem;">Login</button>
+          <button class="secondary" onclick="goToShop()" style="width: 100%; margin-top: 0.5rem;">Back</button>
+        </div>
+
+        <div id="adminDashboard" class="hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h3>All Orders</h3>
+            <button class="secondary" onclick="logoutAdmin()">Logout</button>
+          </div>
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminOrdersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '';
+    let currentUser = null;
+    let currentOrder = null;
+    let isAdmin = false;
+
+    // ===== Google Sign-In =====
+    function initGoogleSignIn() {
+      google.accounts.id.initialize({
+        client_id: '938334556620-tce9iq5sjg8dglft7trbs1416i6povrd.apps.googleusercontent.com',
+        callback: handleSignIn
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('googleSignInButton'),
+        { theme: 'outline', size: 'large' }
+      );
+    }
+
+    async function handleSignIn(response) {
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/google`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          currentUser = data.user;
+          updateUserUI();
+          loadProducts();
+          goToShop();
+        }
+      } catch (err) {
+        console.error('Sign-in failed:', err);
+      }
+    }
+
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/me`);
+        const data = await res.json();
+        if (data.user) {
+          currentUser = data.user;
+          updateUserUI();
+          loadProducts();
+        } else {
+          updateUserUI();
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+      }
+    }
+
+    function updateUserUI() {
+      if (currentUser) {
+        document.getElementById('userInfo').classList.remove('hidden');
+        document.getElementById('userName').textContent = currentUser.name;
+        if (currentUser.picture_url) {
+          document.getElementById('userAvatar').src = currentUser.picture_url;
+        }
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        document.getElementById('adminBtn').classList.remove('hidden');
+        document.getElementById('googleSignInButton').classList.add('hidden');
+      } else {
+        document.getElementById('userInfo').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('adminBtn').classList.add('hidden');
+        document.getElementById('googleSignInButton').classList.remove('hidden');
+      }
+    }
+
+    async function logout() {
+      await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST' });
+      currentUser = null;
+      updateUserUI();
+      goToShop();
+    }
+
+    // ===== Navigation =====
+    function showView(viewId) {
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+    }
+
+    function goToShop() {
+      showView('shopView');
+      loadProducts();
+    }
+
+    function goToCart() {
+      if (!currentUser) {
+        alert('Please sign in first');
+        return;
+      }
+      showView('cartView');
+      loadCart();
+    }
+
+    function goToCheckout() {
+      if (!currentUser) {
+        alert('Please sign in first');
+        return;
+      }
+      showView('checkoutView');
+      loadCheckout();
+    }
+
+    function goToOrders() {
+      if (!currentUser) {
+        alert('Please sign in first');
+        return;
+      }
+      showView('ordersView');
+      loadOrders();
+    }
+
+    function goToAdmin() {
+      showView('adminView');
+    }
+
+    // ===== Products =====
+    async function loadProducts() {
+      try {
+        const res = await fetch(`${API_BASE}/api/products`);
+        const data = await res.json();
+        renderProducts(data.products);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+      }
+    }
+
+    function renderProducts(products) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = products.map(p => `
+        <div class="product-card">
+          <div class="product-image">🎨</div>
+          <div class="product-details">
+            <div class="product-title">${p.title}</div>
+            ${p.oldPrice ? `<div class="product-price old">₹${p.oldPrice}</div>` : ''}
+            <div class="product-price">₹${p.price}</div>
+            <div class="product-actions">
+              <input type="number" id="qty-${p.id}" value="1" min="1">
+              <button onclick="addToCart(${p.id})">Add</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function addToCart(productId) {
+      if (!currentUser) {
+        alert('Please sign in first');
+        return;
+      }
+      const qty = parseInt(document.getElementById(`qty-${productId}`).value) || 1;
+      try {
+        await fetch(`${API_BASE}/api/cart/add`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, quantity: qty })
+        });
+        alert('Added to cart!');
+      } catch (err) {
+        console.error('Add to cart failed:', err);
+      }
+    }
+
+    // ===== Cart =====
+    async function loadCart() {
+      try {
+        const res = await fetch(`${API_BASE}/api/cart`);
+        const data = await res.json();
+        renderCart(data.items);
+      } catch (err) {
+        console.error('Failed to load cart:', err);
+      }
+    }
+
+    function renderCart(items) {
+      const container = document.getElementById('cartItems');
+      if (items.length === 0) {
+        container.innerHTML = '<p>Your cart is empty</p>';
+        document.getElementById('checkoutBtn').disabled = true;
+        return;
+      }
+
+      let subtotal = 0;
+      container.innerHTML = items.map(item => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+        return `
+          <div class="cart-item">
+            <div class="cart-item-details">
+              <div style="font-weight: 600;">${item.title}</div>
+              <div style="color: #666; font-size: 0.9rem;">Qty: ${item.quantity} × ₹${item.price}</div>
+            </div>
+            <div class="cart-item-price">₹${itemTotal}</div>
+            <input type="number" value="${item.quantity}" min="1" style="width: 50px; margin: 0 0.5rem;" 
+              onchange="updateCartItem(${item.productId}, this.value)">
+            <button class="secondary" style="padding: 0.4rem 0.8rem;" onclick="removeFromCart(${item.productId})">×</button>
+          </div>
+        `;
+      }).join('');
+
+      const shipping = subtotal > 2000 ? 0 : 99;
+      const total = subtotal + shipping;
+
+      document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+      document.getElementById('shipping').textContent = `₹${shipping.toFixed(2)}`;
+      document.getElementById('total').textContent = `₹${total.toFixed(2)}`;
+
+      document.getElementById('checkoutBtn').disabled = false;
+    }
+
+    async function updateCartItem(productId, qty) {
+      await fetch(`${API_BASE}/api/cart/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, quantity: parseInt(qty) })
+      });
+      loadCart();
+    }
+
+    async function removeFromCart(productId) {
+      await fetch(`${API_BASE}/api/cart/remove`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId })
+      });
+      loadCart();
+    }
+
+    // ===== Checkout =====
+    async function loadCheckout() {
+      try {
+        const res = await fetch(`${API_BASE}/api/cart`);
+        const cartData = await res.json();
+
+        let subtotal = 0;
+        cartData.items.forEach(item => {
+          subtotal += item.price * item.quantity;
+        });
+
+        const shipping = subtotal > 2000 ? 0 : 99;
+        const total = subtotal + shipping;
+
+        document.getElementById('co-subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('co-shipping').textContent = `₹${shipping.toFixed(2)}`;
+        document.getElementById('co-total').textContent = `₹${total.toFixed(2)}`;
+
+        // Place order
+        const orderRes = await fetch(`${API_BASE}/api/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const orderData = await orderRes.json();
+        currentOrder = orderData;
+
+        // Generate QR code
+        document.getElementById('qrcode').innerHTML = '';
+        new QRCode(document.getElementById('qrcode'), {
+          text: orderData.upiLink,
+          width: 256,
+          height: 256,
+          colorDark: '#000000',
+          colorLight: '#ffffff'
+        });
+
+        document.getElementById('confirmPaymentBtn').disabled = false;
+      } catch (err) {
+        console.error('Checkout failed:', err);
+      }
+    }
+
+    async function confirmPayment() {
+      try {
+        await fetch(`${API_BASE}/api/order/${currentOrder.orderId}/mark-paid`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        alert('✓ Thank you! Your order has been placed. You can view it in "My Orders".');
+        goToOrders();
+      } catch (err) {
+        console.error('Payment confirmation failed:', err);
+      }
+    }
+
+    // ===== Orders =====
+    async function loadOrders() {
+      try {
+        const res = await fetch(`${API_BASE}/api/orders`);
+        const data = await res.json();
+        renderOrders(data.orders);
+      } catch (err) {
+        console.error('Failed to load orders:', err);
+      }
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('ordersContainer');
+      if (orders.length === 0) {
+        container.innerHTML = '<p>No orders yet</p>';
+        return;
+      }
+
+      container.innerHTML = orders.map(order => `
+        <div class="order-detail">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Order #${order.id}</h3>
+            <span class="order-status ${order.status}">${order.status.replace(/_/g, ' ').toUpperCase()}</span>
+          </div>
+          <div class="summary-row">
+            <span>Date:</span>
+            <span>${new Date(order.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div class="order-items-list">
+            ${order.items.map(item => `
+              <div class="order-item">
+                <span>${item.title} × ${item.quantity}</span>
+                <span>₹${(item.unitPrice * item.quantity).toFixed(2)}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="summary-row total">
+            <span>Total:</span>
+            <span>₹${order.total}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ===== Admin =====
+    async function loginAdmin() {
+      const password = document.getElementById('adminPassword').value;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        if (res.ok) {
+          isAdmin = true;
+          document.getElementById('adminLogin').classList.add('hidden');
+          document.getElementById('adminDashboard').classList.remove('hidden');
+          loadAdminOrders();
+        } else {
+          alert('Invalid password');
+        }
+      } catch (err) {
+        console.error('Admin login failed:', err);
+      }
+    }
+
+    function logoutAdmin() {
+      fetch(`${API_BASE}/api/admin/logout`, { method: 'POST' });
+      isAdmin = false;
+      document.getElementById('adminLogin').classList.remove('hidden');
+      document.getElementById('adminDashboard').classList.add('hidden');
+      document.getElementById('adminPassword').value = '';
+      goToShop();
+    }
+
+    async function loadAdminOrders() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/orders`);
+        const data = await res.json();
+        renderAdminOrders(data.orders);
+      } catch (err) {
+        console.error('Failed to load admin orders:', err);
+      }
+    }
+
+    function renderAdminOrders(orders) {
+      const tbody = document.getElementById('adminOrdersBody');
+      tbody.innerHTML = orders.map(order => `
+        <tr>
+          <td>#${order.id}</td>
+          <td>${order.customer.name}</td>
+          <td>${order.customer.email}</td>
+          <td>₹${order.total}</td>
+          <td>
+            <select onchange="updateOrderStatus(${order.id}, this.value)" style="padding: 0.3rem; border-radius: 4px;">
+              <option value="pending_payment" ${order.status === 'pending_payment' ? 'selected' : ''}>Pending Payment</option>
+              <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>Paid</option>
+              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+          <td><button class="secondary" onclick="viewOrderDetail(${order.id})">View</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        await fetch(`${API_BASE}/api/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        loadAdminOrders();
+      } catch (err) {
+        console.error('Failed to update order status:', err);
+      }
+    }
+
+    function viewOrderDetail(orderId) {
+      alert(`View details for order #${orderId}`);
+    }
+
+    // ===== Init =====
+    window.addEventListener('load', () => {
+      initGoogleSignIn();
+      checkAuth();
+    });
+  </script>
+</body>
+</html>
