@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<meta name="google-signin-client_id" content="938334556620-tce9iq5sjg8dglft7trbs1416i6povrd.apps.googleusercontent.com">
+<meta name="google-signin-client_id" content="GOOGLE_CLIENT_ID_PLACEHOLDER">
 <style>
   :root{
     --canvas:#FBF6EC;
@@ -774,6 +774,7 @@ function renderAuthArea(){
           </div>
           <button id="viewProfileBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);">My profile</button>
           <button id="viewOrdersBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);">View my orders</button>
+          <button id="adminBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--gold);font-weight:bold;display:none;" onclick="showAdminDashboard()">📊 Admin Dashboard</button>
           <button id="logoutBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--terracotta-dark);border-top:1px solid var(--line);">Log out</button>
         </div>
       </div>
@@ -1111,3 +1112,59 @@ function showPaymentInfo(orderId, total) {
 
 </body>
 </html>
+
+// ===================== ADMIN DASHBOARD =====================
+async function showAdminDashboard(){
+  const resp = await api('/api/admin/orders', { method: 'GET' });
+  if(!resp || !resp.orders) { showToast('Could not load orders'); return; }
+  
+  let html = '<h3 style="font-family:Yatra One;font-size:24px;margin:0 0 18px;">📊 All Customer Orders</h3>';
+  
+  if(resp.orders.length === 0) {
+    html += '<p>No orders yet</p>';
+  } else {
+    html += '<div style="max-height:500px;overflow-y:auto;">';
+    resp.orders.forEach(order => {
+      const date = new Date(order.createdAt).toLocaleDateString();
+      html += `<div style="border:1px solid var(--sage);padding:12px;margin:10px 0;border-radius:8px;">
+        <div style="font-weight:bold;">Order #${order.id}</div>
+        <div style="font-size:12px;color:var(--sage);">Customer: ${order.customerName} (${order.customerEmail})</div>
+        <div style="font-size:12px;">Phone: ${order.customerPhone}</div>
+        <div style="font-size:12px;">Address: ${order.customerAddress}</div>
+        <div style="font-size:12px;">Date: ${date}</div>
+        <div style="margin-top:8px;padding:8px;background:rgba(92,122,94,0.08);border-radius:6px;">
+          <div style="font-weight:bold;font-size:13px;">Items:</div>`;
+      order.items.forEach(item => {
+        html += `<div style="font-size:11px;">• ${item.title} x${item.quantity} = ₹${item.unitPrice * item.quantity}</div>`;
+      });
+      html += `</div>
+        <div style="margin-top:10px;font-weight:bold;">
+          Subtotal: ₹${order.subtotal} | Shipping: ₹${order.shipping} | <span style="color:var(--gold);">Total: ₹${order.total}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay show';
+  modal.id = 'adminModal';
+  modal.innerHTML = `<div class="auth-modal" style="max-width:600px;"><button class="modal-close" onclick="document.getElementById('adminModal').remove()">✕</button>${html}</div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target.id==='adminModal') modal.remove(); });
+}
+
+function checkAdminAndShowButton(){
+  if(currentUser && currentUser.email === 'gudimellavaruntej@gmail.com'){
+    document.getElementById('adminBtn').style.display = 'block';
+  } else {
+    document.getElementById('adminBtn').style.display = 'none';
+  }
+}
+
+// Call checkAdminAndShowButton after user loads
+const origRenderAuthArea = renderAuthArea;
+renderAuthArea = function() {
+  origRenderAuthArea();
+  setTimeout(checkAdminAndShowButton, 100);
+};
