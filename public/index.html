@@ -1,1170 +1,357 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalalokam by Sri — Handmade Art &amp; Crafts</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<meta name="google-signin-client_id" content="938334556620-liqgqfd68n0nkbms0b55pnelsfaqu6me.apps.googleusercontent.com">
-<style>
-  :root{
-    --canvas:#FBF6EC;
-    --ink:#241D16;
-    --terracotta:#B5482E;
-    --terracotta-dark:#8C3320;
-    --sage:#5C7A5E;
-    --gold:#D9A441;
-    --card:#FFFFFF;
-    --line:rgba(36,29,22,0.12);
-    --shadow: 0 8px 24px rgba(36,29,22,0.08);
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--canvas);
-    color:var(--ink);
-    font-family:'Lora', serif;
-    -webkit-font-smoothing:antialiased;
-    overflow-x:hidden;
-  }
-  ::selection{background:var(--gold);color:var(--ink);}
-
-  a{color:inherit;text-decoration:none;}
-  button{font-family:'Inter',sans-serif;cursor:pointer;}
-  input{font-family:'Inter',sans-serif;}
-
-  /* ---------- Texture backdrop ---------- */
-  .grain{
-    position:fixed;inset:0;pointer-events:none;z-index:1;opacity:0.035;mix-blend-mode:multiply;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  }
-
-  /* ---------- Header ---------- */
-  header{
-    position:sticky;top:0;z-index:50;
-    background:rgba(251,246,236,0.92);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-  }
-  .header-inner{
-    max-width:1180px;margin:0 auto;padding:16px 28px;
-    display:flex;align-items:center;justify-content:space-between;gap:24px;
-  }
-  .brand{display:flex;align-items:center;gap:12px;}
-  .brand-mark{width:42px;height:42px;flex-shrink:0;}
-  .brand-text{display:flex;flex-direction:column;line-height:1;}
-  .brand-text .name{font-family:'Yatra One',cursive;font-size:24px;color:var(--terracotta-dark);letter-spacing:0.5px;}
-  .brand-text .by{font-family:'Inter',sans-serif;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--sage);margin-top:2px;}
-
-  nav{display:flex;align-items:center;gap:30px;}
-  .nav-links{display:flex;gap:28px;font-family:'Inter',sans-serif;font-size:14.5px;font-weight:500;}
-  .nav-links a{position:relative;padding-bottom:4px;color:var(--ink);opacity:0.8;transition:opacity .2s;}
-  .nav-links a:hover{opacity:1;}
-  .nav-links a.active{opacity:1;}
-  .nav-links a.active::after{
-    content:'';position:absolute;left:-4px;right:-4px;bottom:-6px;height:6px;
-    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'><path d='M2,6 Q20,1 40,6 T80,5 T98,7' stroke='%23B5482E' stroke-width='3' fill='none' stroke-linecap='round'/></svg>") center/100% 100% no-repeat;
-  }
-
-  .nav-actions{display:flex;align-items:center;gap:14px;}
-  .icon-btn{
-    position:relative;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);
-    background:transparent;display:flex;align-items:center;justify-content:center;color:var(--ink);
-    transition:background .2s,border-color .2s;
-  }
-  .icon-btn:hover{background:rgba(181,72,46,0.08);border-color:var(--terracotta);}
-  .cart-badge{
-    position:absolute;top:-4px;right:-4px;background:var(--terracotta);color:#fff;
-    font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;
-    display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:'Inter',sans-serif;
-  }
-  .user-chip{
-    display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
-    padding:7px 14px 7px 8px;border-radius:20px;border:1px solid var(--line);background:rgba(92,122,94,0.08);
-    color:inherit;
-  }
-  .user-chip .avatar{
-    width:26px;height:26px;border-radius:50%;background:var(--sage);color:#fff;
-    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
-  }
-  .btn{
-    font-family:'Inter',sans-serif;font-weight:600;font-size:14px;padding:10px 22px;border-radius:24px;
-    border:1.5px solid var(--terracotta);background:var(--terracotta);color:#fff;transition:transform .15s, box-shadow .15s, background .2s;
-  }
-  .btn:hover{background:var(--terracotta-dark);transform:translateY(-1px);box-shadow:0 6px 14px rgba(181,72,46,0.28);}
-  .btn.outline{background:transparent;color:var(--terracotta-dark);}
-  .btn.outline:hover{background:rgba(181,72,46,0.08);}
-  .btn.sage{border-color:var(--sage);background:var(--sage);}
-  .btn.sage:hover{background:#4a6a4c;}
-  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
-  .btn-full{width:100%;display:block;text-align:center;}
-
-  /* ---------- Hero ---------- */
-  .hero{
-    position:relative;max-width:1180px;margin:0 auto;padding:72px 28px 56px;
-    display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px;align-items:center;
-  }
-  .hero-eyebrow{
-    font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;letter-spacing:3px;text-transform:uppercase;
-    color:var(--sage);margin:0 0 18px;display:flex;align-items:center;gap:10px;
-  }
-  .hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--sage);}
-  .hero h1{
-    font-family:'Yatra One',cursive;font-size:clamp(40px,5vw,66px);line-height:1.08;margin:0 0 22px;
-    color:var(--ink);position:relative;display:inline-block;
-  }
-  .hero h1 .accent{color:var(--terracotta);}
-  .hero p.lede{font-size:18px;line-height:1.7;color:rgba(36,29,22,0.78);max-width:480px;margin:0 0 32px;}
-  .hero-ctas{display:flex;gap:16px;align-items:center;}
-  .hero-ctas .link{font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:var(--terracotta-dark);border-bottom:1px solid var(--terracotta-dark);padding-bottom:2px;}
-
-  .hero-art{position:relative;height:420px;}
-  .hero-art svg{width:100%;height:100%;}
-
-  .brush-divider{display:block;width:140px;height:14px;margin:0 auto;}
-
-  /* ---------- Strip / category rail ---------- */
-  .rail-section{max-width:1180px;margin:0 auto;padding:8px 28px 40px;}
-  .rail{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px;scrollbar-width:thin;}
-  .rail::-webkit-scrollbar{height:6px;}
-  .rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
-  .chip{
-    flex-shrink:0;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;padding:10px 20px;
-    border-radius:22px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);
-    transition:border-color .2s, background .2s, color .2s; white-space:nowrap;
-  }
-  .chip:hover{border-color:var(--terracotta);}
-  .chip.active{background:var(--ink);color:var(--canvas);border-color:var(--ink);}
-
-  /* ---------- Section heading ---------- */
-  .section-head{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;}
-  .section-head h2{font-family:'Yatra One',cursive;font-size:32px;color:var(--ink);margin:0;}
-  .section-head .sub{font-family:'Inter',sans-serif;font-size:13.5px;color:rgba(36,29,22,0.55);}
-
-  /* ---------- Product grid ---------- */
-  .grid-wrap{max-width:1180px;margin:0 auto;padding:28px 28px 80px;}
-  .product-grid{
-    display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:26px;
-  }
-  .card{
-    background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--line);
-    transition:transform .25s ease, box-shadow .25s ease;display:flex;flex-direction:column;
-  }
-  .card:hover{transform:translateY(-5px);box-shadow:var(--shadow);}
-  .thumb{
-    position:relative;height:200px;display:flex;align-items:center;justify-content:center;overflow:hidden;
-  }
-  .thumb svg{width:100%;height:100%;}
-  .badge-new{
-    position:absolute;top:12px;left:12px;background:var(--gold);color:#3a2a08;
-    font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.5px;
-    padding:4px 10px;border-radius:12px;text-transform:uppercase;
-  }
-  .wishlist-btn{
-    position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;
-    background:rgba(255,255,255,0.85);border:none;display:flex;align-items:center;justify-content:center;
-    color:var(--terracotta);transition:background .2s, transform .15s;
-  }
-  .wishlist-btn:hover{background:#fff;transform:scale(1.08);}
-  .card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1;}
-  .card-cat{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--sage);}
-  .card-title{font-family:'Lora',serif;font-weight:600;font-size:17px;color:var(--ink);line-height:1.3;}
-  .card-desc{font-family:'Inter',sans-serif;font-size:12.5px;color:rgba(36,29,22,0.6);line-height:1.5;flex:1;}
-  .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
-  .price{font-family:'Inter',sans-serif;font-weight:700;font-size:17px;color:var(--ink);}
-  .price .old{font-size:12.5px;font-weight:500;color:rgba(36,29,22,0.4);text-decoration:line-through;margin-left:6px;}
-  .add-btn{
-    width:42px;height:42px;border-radius:50%;border:none;background:var(--ink);color:var(--canvas);
-    display:flex;align-items:center;justify-content:center;font-size:20px;transition:background .2s, transform .15s;
-  }
-  .add-btn:hover{background:var(--terracotta);transform:scale(1.06);}
-  .add-btn.added{background:var(--sage);}
-
-  /* ---------- Footer ---------- */
-  footer{background:var(--ink);color:rgba(251,246,236,0.85);margin-top:40px;}
-  .footer-inner{max-width:1180px;margin:0 auto;padding:56px 28px 32px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;}
-  footer h4{font-family:'Inter',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin:0 0 16px;font-weight:600;}
-  .footer-brand{font-family:'Yatra One',cursive;font-size:26px;color:var(--canvas);margin-bottom:10px;}
-  footer p{font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.7;color:rgba(251,246,236,0.65);margin:0;}
-  footer ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
-  footer a{font-family:'Inter',sans-serif;font-size:13.5px;color:rgba(251,246,236,0.7);transition:color .2s;}
-  footer a:hover{color:var(--gold);}
-  .footer-bottom{
-    border-top:1px solid rgba(251,246,236,0.12);padding:20px 28px;text-align:center;
-    font-family:'Inter',sans-serif;font-size:12.5px;color:rgba(251,246,236,0.45);
-  }
-
-  /* ---------- Drawer (cart) ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(36,29,22,0.45);z-index:90;opacity:0;pointer-events:none;
-    transition:opacity .25s ease;
-  }
-  .overlay.show{opacity:1;pointer-events:all;}
-  .drawer{
-    position:fixed;top:0;right:0;height:100%;width:420px;max-width:92vw;background:var(--canvas);
-    z-index:95;transform:translateX(100%);transition:transform .3s ease;display:flex;flex-direction:column;
-    box-shadow:-12px 0 30px rgba(0,0,0,0.15);
-  }
-  .drawer.show{transform:translateX(0);}
-  .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:22px 24px;border-bottom:1px solid var(--line);}
-  .drawer-head h3{font-family:'Yatra One',cursive;font-size:24px;margin:0;color:var(--ink);}
-  .drawer-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;display:flex;align-items:center;justify-content:center;font-size:18px;}
-  .drawer-body{flex:1;overflow-y:auto;padding:18px 24px;}
-  .cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);}
-  .cart-item .thumb-sm{width:64px;height:64px;border-radius:10px;flex-shrink:0;overflow:hidden;background:var(--card);}
-  .cart-item .thumb-sm svg{width:100%;height:100%;}
-  .ci-info{flex:1;display:flex;flex-direction:column;gap:4px;}
-  .ci-title{font-family:'Lora',serif;font-weight:600;font-size:14.5px;color:var(--ink);}
-  .ci-price{font-family:'Inter',sans-serif;font-size:13px;color:rgba(36,29,22,0.6);}
-  .qty-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
-  .qty-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:14px;display:flex;align-items:center;justify-content:center;}
-  .qty-val{font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;min-width:18px;text-align:center;}
-  .remove-btn{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--terracotta);background:none;border:none;padding:0;margin-left:auto;text-decoration:underline;}
-  .drawer-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:14px;color:rgba(36,29,22,0.5);}
-  .drawer-empty svg{width:90px;height:90px;opacity:0.5;}
-  .drawer-foot{border-top:1px solid var(--line);padding:20px 24px 26px;}
-  .totals-row{display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-size:14px;margin-bottom:8px;color:rgba(36,29,22,0.7);}
-  .totals-row.grand{font-size:17px;font-weight:700;color:var(--ink);margin-top:12px;}
-
-  /* ---------- Auth modal ---------- */
-  .modal-overlay{
-    position:fixed;inset:0;background:rgba(36,29,22,0.5);z-index:100;display:none;
-    align-items:center;justify-content:center;padding:20px;
-  }
-  .modal-overlay.show{display:flex;}
-  .auth-modal{
-    background:var(--canvas);border-radius:20px;width:420px;max-width:100%;padding:38px 36px 34px;
-    position:relative;box-shadow:0 24px 60px rgba(0,0,0,0.25);
-    background-image:radial-gradient(circle at top right, rgba(217,164,65,0.12), transparent 60%);
-  }
-  .modal-close{position:absolute;top:18px;right:18px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:transparent;display:flex;align-items:center;justify-content:center;}
-  .auth-head{text-align:center;margin-bottom:26px;}
-  .auth-head .mark{width:48px;height:48px;margin:0 auto 12px;}
-  .auth-head h3{font-family:'Yatra One',cursive;font-size:28px;margin:0 0 6px;color:var(--ink);}
-  .auth-head p{font-family:'Inter',sans-serif;font-size:13.5px;color:rgba(36,29,22,0.55);margin:0;}
-  .tab-row{display:flex;background:rgba(36,29,22,0.06);border-radius:24px;padding:4px;margin-bottom:24px;}
-  .tab-btn{flex:1;border:none;background:transparent;padding:9px;border-radius:20px;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;color:rgba(36,29,22,0.55);transition:all .2s;}
-  .tab-btn.active{background:var(--ink);color:var(--canvas);}
-  .field{margin-bottom:16px;}
-  .field label{display:block;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;color:rgba(36,29,22,0.7);margin-bottom:6px;}
-  .field input{
-    width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);background:#fff;
-    font-size:14.5px;color:var(--ink);transition:border-color .2s;
-  }
-  .field input:focus{outline:none;border-color:var(--terracotta);}
-  .auth-error{
-    font-family:'Inter',sans-serif;font-size:12.5px;color:var(--terracotta-dark);background:rgba(181,72,46,0.08);
-    border-radius:8px;padding:9px 12px;margin-bottom:14px;display:none;
-  }
-  .auth-error.show{display:block;}
-  .auth-meta{display:flex;justify-content:space-between;align-items:center;font-family:'Inter',sans-serif;font-size:12.5px;margin-bottom:20px;color:rgba(36,29,22,0.6);}
-  .auth-meta label{display:flex;align-items:center;gap:6px;}
-  .auth-switch-note{text-align:center;margin-top:18px;font-family:'Inter',sans-serif;font-size:13px;color:rgba(36,29,22,0.55);}
-  .auth-switch-note button{background:none;border:none;color:var(--terracotta-dark);font-weight:600;text-decoration:underline;}
-  .demo-note{
-    margin-top:18px;font-family:'Inter',sans-serif;font-size:11.5px;color:rgba(36,29,22,0.45);
-    text-align:center;line-height:1.6;
-  }
-
-  /* ---------- Toast ---------- */
-  .toast{
-    position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--ink);color:var(--canvas);padding:13px 24px;border-radius:24px;font-family:'Inter',sans-serif;
-    font-size:13.5px;font-weight:500;z-index:200;opacity:0;transition:opacity .25s, transform .25s;
-    display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,0.2);
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .toast .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);}
-
-  /* ---------- Misc ---------- */
-  .section-divider{display:flex;justify-content:center;padding:8px 0 24px;}
-
-  @media (max-width:880px){
-    .nav-links{display:none;}
-    .hero{grid-template-columns:1fr;text-align:left;padding-top:48px;}
-    .hero-art{height:280px;order:-1;}
-    .footer-inner{grid-template-columns:1fr 1fr;}
-  }
-  @media (max-width:520px){
-    .header-inner{padding:14px 18px;}
-    .brand-text .name{font-size:19px;}
-    .hero{padding:36px 18px 40px;}
-    .section-head{padding:0 18px;}
-    .grid-wrap{padding:24px 18px 60px;}
-    .footer-inner{grid-template-columns:1fr;padding:40px 20px;}
-    .drawer{width:100vw;}
-    .auth-modal{padding:30px 24px 26px;}
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{transition:none !important; animation:none !important;}
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kalalokam by Sri - Handmade Art Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Lora:wght@400;600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --terracotta: #A0634D;
+      --sage: #5C7A5E;
+      --gold: #D4A574;
+      --cream: #F5F1E8;
+      --ink: #2B2B2B;
+    }
+    body {
+      font-family: 'Lora', serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, var(--terracotta), var(--sage));
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-family: 'Yatra One'; font-size: 32px; }
+    .header-right { display: flex; gap: 20px; align-items: center; }
+    button { font-family: 'Inter', sans-serif; cursor: pointer; padding: 10px 16px; border: none; border-radius: 6px; font-size: 14px; }
+    .btn-primary { background: var(--gold); color: var(--ink); font-weight: bold; }
+    .btn-primary:hover { background: #E5B895; }
+    .btn-secondary { background: transparent; color: white; border: 1px solid white; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; }
+    .modal-overlay.show { display: flex; justify-content: center; align-items: center; }
+    .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 500px; width: 90%; position: relative; }
+    .modal-close { position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 24px; cursor: pointer; }
+    .form-group { margin: 16px 0; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 10px; border: 1px solid var(--sage); border-radius: 6px; font-size: 14px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
+    .product-card { background: white; padding: 16px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .product-card h3 { color: var(--terracotta); margin: 10px 0; font-size: 16px; }
+    .product-card .price { font-size: 18px; font-weight: bold; color: var(--gold); margin: 8px 0; }
+    .product-card .category { font-size: 12px; color: var(--sage); }
+    .cart-icon { font-size: 24px; cursor: pointer; }
+    .cart-drawer { position: fixed; right: 0; top: 0; width: 350px; height: 100vh; background: white; box-shadow: -2px 0 8px rgba(0,0,0,0.2); transform: translateX(100%); transition: 0.3s; z-index: 999; padding: 20px; overflow-y: auto; }
+    .cart-drawer.open { transform: translateX(0); }
+    .user-menu { position: relative; display: inline-block; }
+    .dropdown { display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid var(--sage); border-radius: 8px; min-width: 200px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .dropdown.show { display: block; }
+    .dropdown button { width: 100%; text-align: left; background: none; border: none; padding: 12px; font-size: 14px; color: var(--ink); border-bottom: 1px solid var(--sage); }
+    .dropdown button:last-child { border-bottom: none; }
+    .dropdown button:hover { background: var(--cream); }
+    .order-status { padding: 12px; border-radius: 6px; margin: 12px 0; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-placed { background: #d4edda; color: #155724; }
+    .admin-orders { max-height: 500px; overflow-y: auto; }
+    .order-item { background: white; padding: 12px; margin: 8px 0; border: 1px solid var(--sage); border-radius: 6px; }
+    .center { text-align: center; padding: 20px; }
+  </style>
 </head>
 <body>
-
-<div class="grain"></div>
-
-<!-- ============ HEADER ============ -->
-<header>
-  <div class="header-inner">
-    <a class="brand" href="#" onclick="return false;">
-      <svg class="brand-mark" viewBox="0 0 48 48" fill="none">
-        <circle cx="24" cy="24" r="22" fill="#FBF6EC" stroke="#B5482E" stroke-width="1.5"/>
-        <path d="M14 30c2-9 7-15 10-15s2 8-1 13-9 4-9 2z" fill="#D9A441"/>
-        <path d="M24 15c4 1 9 5 10 12 1 5-4 7-7 4-4-4-3-13-3-16z" fill="#5C7A5E"/>
-        <circle cx="24" cy="24" r="2.4" fill="#B5482E"/>
-      </svg>
-      <span class="brand-text">
-        <span class="name">Kalalokam</span>
-        <span class="by">by Sri</span>
-      </span>
-    </a>
-    <nav>
-      <div class="nav-links">
-        <a href="#home" class="active" data-nav="home">Home</a>
-        <a href="#shop" data-nav="shop">Shop</a>
-        <a href="#story" data-nav="story">Our story</a>
-        <a href="#contact" data-nav="contact">Contact</a>
-      </div>
-    </nav>
-    <div class="nav-actions">
-      <button class="icon-btn" id="cartBtn" aria-label="Open cart">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1.3" fill="currentColor"/><circle cx="18" cy="21" r="1.3" fill="currentColor"/><path d="M2.5 3h2.2l2 12.2a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L21 7H6"/></svg>
-        <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
-      </button>
-      <div id="authArea"></div>
-    </div>
-  </div>
-</header>
-
-<!-- ============ HERO ============ -->
-<section class="hero" id="home">
-  <div>
-    <p class="hero-eyebrow">Handcrafted in small batches</p>
-    <h1>Art that still has<br>the artist's <span class="accent">hand</span> in it</h1>
-    <p class="lede">Kalalokam by Sri is a studio of hand-painted canvases, kalamkari textiles, terracotta ware and folk-art curios — every piece made, not manufactured.</p>
-    <div class="hero-ctas">
-      <button class="btn" onclick="scrollToShop()">Browse the collection</button>
-      <a class="link" href="#story">Read our story →</a>
-    </div>
-  </div>
-  <div class="hero-art">
-    <svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="210" cy="210" r="190" fill="#F1E6D2"/>
-      <path d="M70 260 Q120 140 210 130 Q300 120 340 220 Q300 320 200 330 Q100 330 70 260Z" fill="#D9A441" opacity="0.55"/>
-      <path d="M120 300c20-90 70-150 130-160s90 60 60 120-130 90-190 40Z" fill="#5C7A5E" opacity="0.7"/>
-      <path d="M150 120c40-20 100-10 130 30s10 90-40 100-130-10-140-60 10-50 50-70Z" fill="#B5482E" opacity="0.85"/>
-      <circle cx="210" cy="190" r="10" fill="#241D16"/>
-      <path d="M60 350c60 20 240 20 300 0" stroke="#241D16" stroke-width="2" fill="none" stroke-dasharray="2 6" opacity="0.4"/>
-    </svg>
-  </div>
-</section>
-
-<div class="rail-section">
-  <div class="rail" id="categoryRail"></div>
-</div>
-
-<!-- ============ SHOP ============ -->
-<div class="section-head" id="shop">
-  <h2>The collection</h2>
-  <span class="sub" id="resultCount">20 handmade pieces</span>
-</div>
-<div class="grid-wrap">
-  <div class="product-grid" id="productGrid"></div>
-</div>
-
-<div class="section-divider">
-  <svg class="brush-divider" viewBox="0 0 140 14" xmlns="http://www.w3.org/2000/svg"><path d="M2,9 Q30,2 60,8 T120,6 T138,10" stroke="#B5482E" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg>
-</div>
-
-<!-- ============ STORY ============ -->
-<section id="story" style="max-width:1180px;margin:0 auto;padding:20px 28px 70px;display:grid;grid-template-columns:0.9fr 1.1fr;gap:48px;align-items:center;">
-  <svg viewBox="0 0 380 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;">
-    <rect x="10" y="10" width="360" height="300" rx="14" fill="#F1E6D2"/>
-    <path d="M40 250c30-110 90-180 150-180s90 90 60 160-160 100-210 20Z" fill="#5C7A5E" opacity="0.5"/>
-    <path d="M90 230c10-80 60-130 110-130s70 70 40 130-130 70-150 0Z" fill="#D9A441" opacity="0.7"/>
-    <circle cx="190" cy="150" r="46" fill="#B5482E" opacity="0.9"/>
-    <circle cx="190" cy="150" r="10" fill="#241D16"/>
-  </svg>
-  <div>
-    <p class="hero-eyebrow">Our story</p>
-    <h2 style="font-family:'Yatra One',cursive;font-size:32px;margin:0 0 18px;">Started on a kitchen table in Hyderabad</h2>
-    <p style="font-size:16px;line-height:1.8;color:rgba(36,29,22,0.75);margin:0 0 16px;">Sri began painting Cheriyal-style scrolls as a way to keep an old family craft alive. What started as gifts for friends slowly grew into Kalalokam — a small studio working with local artisans across Telangana and Andhra Pradesh.</p>
-    <p style="font-size:16px;line-height:1.8;color:rgba(36,29,22,0.75);margin:0;">Every product on this site is made by hand, in limited quantities, using natural pigments, terracotta clay, and hand-loomed cloth wherever possible.</p>
-  </div>
-</section>
-
-<!-- ============ FOOTER ============ -->
-<footer id="contact">
-  <div class="footer-inner">
-    <div>
-      <div class="footer-brand">Kalalokam <span style="font-size:15px;color:#D9A441;">by Sri</span></div>
-      <p>Handmade art, textiles and folk crafts from the studios of Telangana — made slow, made well.</p>
-    </div>
-    <div>
-      <h4>Shop</h4>
-      <ul>
-        <li><a href="#shop">All products</a></li>
-        <li><a href="#shop">Paintings</a></li>
-        <li><a href="#shop">Textiles</a></li>
-        <li><a href="#shop">Home decor</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Studio</h4>
-      <ul>
-        <li><a href="#story">Our story</a></li>
-        <li><a href="#" onclick="return false;">Artisans</a></li>
-        <li><a href="#" onclick="return false;">Care guide</a></li>
-      </ul>
-    </div>
-    <div>
-      <h4>Reach us</h4>
-      <ul>
-        <li><a href="mailto:hello@kalalokam.in">hello@kalalokam.in</a></li>
-        <li><a href="#" onclick="return false;">Hyderabad, Telangana</a></li>
-        <li><a href="#" onclick="return false;">@kalalokam.by.sri</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">© 2026 Kalalokam by Sri. Made by hand, sold with care.</div>
-</footer>
-
-<!-- ============ CART DRAWER ============ -->
-<div class="overlay" id="overlay"></div>
-<aside class="drawer" id="cartDrawer">
-  <div class="drawer-head">
-    <h3>Your cart</h3>
-    <button class="drawer-close" id="closeCart" aria-label="Close cart">✕</button>
-  </div>
-  <div class="drawer-body" id="drawerBody"></div>
-  <div class="drawer-foot" id="drawerFoot"></div>
-</aside>
-
-<!-- ============ AUTH MODAL ============ -->
-<div class="modal-overlay" id="authOverlay">
-  <div class="auth-modal">
-    <button class="modal-close" id="closeAuth" aria-label="Close">✕</button>
-    <div class="auth-head">
-      <svg class="mark" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" fill="#FBF6EC" stroke="#B5482E" stroke-width="1.5"/><path d="M14 30c2-9 7-15 10-15s2 8-1 13-9 4-9 2z" fill="#D9A441"/><path d="M24 15c4 1 9 5 10 12 1 5-4 7-7 4-4-4-3-13-3-16z" fill="#5C7A5E"/></svg>
-      <h3>Welcome to Kalalokam</h3>
-      <p>Sign in with Google to shop, save a cart and place orders</p>
-    </div>
-    <div class="auth-error" id="authError"></div>
-    <div id="googleBtnContainer" style="display:flex;justify-content:center;margin:10px 0 4px;"></div>
-    <p class="demo-note" id="googleFallbackNote" style="display:none;">
-      Google sign-in isn't configured yet. Add your Client ID in <code>public/index.html</code> and <code>.env</code> — see SETUP.md.
-    </p>
-    <p class="demo-note">We only receive your name, email and profile photo from Google — never your password.</p>
-  </div>
-</div>
-
-<div class="toast" id="toast"><span class="dot"></span><span id="toastMsg"></span></div>
-
-<!-- ============ PAYMENT INFO MODAL ============ -->
-<div class="modal-overlay" id="paymentOverlay">
-  <div class="auth-modal" style="max-width:500px;">
-    <button class="modal-close" id="closePayment">✕</button>
-    <h3 style="font-family:'Yatra One',cursive;font-size:28px;margin:0 0 18px;text-align:center;">Order Placed!</h3>
-    
-    <div style="text-align:center;margin:20px 0;">
-      <p style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(36,29,22,0.7);">Scan to send payment via UPI</p>
-      <div id="qrCode" style="display:inline-block;padding:20px;background:#fff;border-radius:12px;margin:20px 0;"></div>
-    </div>
-
-    <h4 style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--sage);margin:18px 0 12px;">UPI Details</h4>
-    <div style="background:rgba(92,122,94,0.08);padding:14px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.8;">
-      <div><strong>UPI ID:</strong> varuntej.g56-1@oksbi</div>
-      <div style="margin-top:10px;"><strong>Account Name:</strong> Kalalokam by Sri</div>
-    </div>
-
-    <h4 style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--sage);margin:18px 0 12px;">Contact Info</h4>
-    <div style="background:rgba(92,122,94,0.08);padding:14px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.8;">
-      <div>📞 <strong>Phone:</strong> 9492550463</div>
-      <div>📧 <strong>Email:</strong> gudimellavaruntej@gmail.com</div>
-      <div style="margin-top:10px;">📍 <strong>Address:</strong> 8-3-316, Engineers Colony, Yousufguda Basti, Hyderabad</div>
-    </div>
-
-    <p style="font-family:'Inter',sans-serif;font-size:12px;color:rgba(36,29,22,0.55);margin-top:20px;text-align:center;">After sending payment, we'll confirm your order. Thank you!</p>
-    <button class="btn btn-full sage" onclick="document.getElementById('paymentOverlay').classList.remove('show');" style="margin-top:14px;">Done</button>
-  </div>
-</div>
-
-<script>
-/* ===================== CONFIG ===================== */
-// Same-origin by default since this file is served by the backend itself.
-const API_BASE = '';
-const GOOGLE_CLIENT_ID = document.querySelector('meta[name="google-signin-client_id"]').content;
-
-/* ===================== THUMBNAIL ART (visual only, no backend needed) ===================== */
-const PALETTES = [
-  ['#B5482E','#D9A441'], ['#5C7A5E','#F1E6D2'], ['#D9A441','#5C7A5E'],
-  ['#8C3320','#B5482E'], ['#5C7A5E','#B5482E'], ['#D9A441','#8C3320']
-];
-function thumbSVG(seed){
-  const p = PALETTES[seed % PALETTES.length];
-  const shapes = [
-    `<path d="M30 170c10-90 60-150 110-150s90 90 60 150-160 80-170 0Z" fill="${p[0]}" opacity="0.55"/><path d="M70 150c10-60 50-100 80-100s60 60 40 100-110 50-120 0Z" fill="${p[1]}" opacity="0.85"/>`,
-    `<circle cx="100" cy="100" r="70" fill="${p[0]}" opacity="0.5"/><circle cx="120" cy="90" r="45" fill="${p[1]}" opacity="0.85"/>`,
-    `<path d="M20 100 Q60 20 100 30 Q170 40 180 100 Q170 170 100 170 Q30 170 20 100Z" fill="${p[0]}" opacity="0.55"/><path d="M55 100 Q75 50 100 55 Q140 60 145 100 Q140 145 100 145 Q60 145 55 100Z" fill="${p[1]}" opacity="0.9"/>`,
-  ];
-  const shape = shapes[seed % shapes.length];
-  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-    <rect width="200" height="200" fill="#F1E6D2"/>
-    ${shape}
-    <circle cx="100" cy="100" r="6" fill="#241D16" opacity="0.8"/>
-  </svg>`;
-}
-
-const CATS = ['All','Paintings','Textiles','Home decor','Folk art'];
-
-/* ===================== STATE ===================== */
-let PRODUCTS = [];     // loaded from backend
-let cartItems = [];    // [{productId, title, quantity, price, seed}] loaded from backend
-let currentUser = null;
-let activeCat = 'All';
-
-/* ===================== API HELPERS ===================== */
-async function api(path, options = {}) {
-  const res = await fetch(API_BASE + path, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    ...options
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const err = new Error(data.message || data.error || 'Request failed');
-    err.code = data.error;
-    err.status = res.status;
-    throw err;
-  }
-  return data;
-}
-
-/* ===================== LOAD INITIAL DATA ===================== */
-async function loadProducts(){
-  const { products } = await api('/api/products');
-  PRODUCTS = products;
-}
-
-async function loadSession(){
-  const { user } = await api('/api/auth/me');
-  currentUser = user;
-  if (currentUser) {
-    await loadCart();
-  } else {
-    cartItems = [];
-  }
-}
-
-async function loadCart(){
-  if (!currentUser) { cartItems = []; return; }
-  const { items } = await api('/api/cart');
-  cartItems = items;
-}
-
-/* ===================== RENDER: category rail ===================== */
-function renderRail(){
-  const rail = document.getElementById('categoryRail');
-  rail.innerHTML = CATS.map(c => `<button class="chip ${c===activeCat?'active':''}" data-cat="${c}">${c}</button>`).join('');
-  rail.querySelectorAll('.chip').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      activeCat = btn.dataset.cat;
-      renderRail();
-      renderProducts();
-    });
-  });
-}
-
-/* ===================== RENDER: products ===================== */
-function renderProducts(){
-  const grid = document.getElementById('productGrid');
-  const list = activeCat==='All' ? PRODUCTS : PRODUCTS.filter(p=>p.category===activeCat);
-  document.getElementById('resultCount').textContent = `${list.length} handmade piece${list.length!==1?'s':''}`;
-  grid.innerHTML = list.map(p => `
-    <div class="card">
-      <div class="thumb">
-        ${p.isNew ? '<span class="badge-new">New</span>' : ''}
-        <button class="wishlist-btn" aria-label="Save to wishlist" onclick="event.stopPropagation(); showToast('Saved to wishlist')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.7-10-9.3C.5 8.2 2 4.5 5.6 4c2-.3 3.7.7 4.9 2.4C11.7 4.7 13.4 3.7 15.4 4c3.6.5 5.1 4.2 3.6 7.7C19.5 16.3 12 21 12 21z"/></svg>
-        </button>
-        ${thumbSVG(p.seed)}
-      </div>
-      <div class="card-body">
-        <span class="card-cat">${p.category}</span>
-        <span class="card-title">${p.title}</span>
-        <span class="card-desc">${p.description}</span>
-        <div class="card-foot">
-          <span class="price">₹${p.price.toLocaleString('en-IN')}${p.oldPrice ? `<span class="old">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}</span>
-          <button class="add-btn" data-id="${p.id}" aria-label="Add ${p.title} to cart">+</button>
+  <header>
+    <h1>🎨 Kalalokam by Sri</h1>
+    <div class="header-right">
+      <div class="cart-icon" onclick="toggleCart()">🛒 <span id="cartCount">0</span></div>
+      <div class="user-menu">
+        <button class="btn-secondary" onclick="toggleUserMenu()" id="userBtn">Login</button>
+        <div class="dropdown" id="userDropdown">
+          <button onclick="showOrders()">My Orders</button>
+          <button onclick="showAdminDashboard()" id="adminBtn" style="display:none;color:var(--gold);font-weight:bold;">📊 Admin Panel</button>
+          <button onclick="logout()">Logout</button>
         </div>
       </div>
     </div>
-  `).join('');
+  </header>
 
-  grid.querySelectorAll('.add-btn').forEach(btn=>{
-    btn.addEventListener('click', async ()=>{
-      const id = parseInt(btn.dataset.id);
-      await addToCart(id);
-      btn.classList.add('added');
-      btn.textContent = '✓';
-      setTimeout(()=>{ btn.classList.remove('added'); btn.textContent='+'; }, 900);
-    });
-  });
-}
+  <div id="productsContainer" class="products-grid"></div>
 
-/* ===================== CART LOGIC (backend-backed) ===================== */
-async function addToCart(id){
-  if (!currentUser) {
-    openAuth();
-    showToast('Please sign in to add items to your cart');
-    return;
-  }
-  try {
-    const { items } = await api('/api/cart/add', { method: 'POST', body: JSON.stringify({ productId: id, quantity: 1 }) });
-    cartItems = items;
-    updateCartUI();
-    const p = PRODUCTS.find(p=>p.id===id);
-    showToast(`Added "${p.title}" to cart`);
-  } catch (e) {
-    showToast('Could not add to cart — try again');
-  }
-}
-async function changeQty(id, delta){
-  const current = cartItems.find(c=>c.productId===id);
-  const newQty = (current ? current.quantity : 0) + delta;
-  try {
-    const { items } = await api('/api/cart/update', { method: 'POST', body: JSON.stringify({ productId: id, quantity: newQty }) });
-    cartItems = items;
-    updateCartUI();
-  } catch (e) {
-    showToast('Could not update cart');
-  }
-}
-async function removeFromCart(id){
-  try {
-    const { items } = await api('/api/cart/remove', { method: 'POST', body: JSON.stringify({ productId: id }) });
-    cartItems = items;
-    updateCartUI();
-  } catch (e) {
-    showToast('Could not remove item');
-  }
-}
-function cartCount(){
-  return cartItems.reduce((a,c)=>a+c.quantity,0);
-}
-function cartTotal(){
-  return cartItems.reduce((sum,c)=> sum + c.price*c.quantity, 0);
-}
-function updateCartUI(){
-  const badge = document.getElementById('cartBadge');
-  const count = cartCount();
-  badge.textContent = count;
-  badge.style.display = count>0 ? 'flex' : 'none';
-  renderDrawer();
-}
-function renderDrawer(){
-  const body = document.getElementById('drawerBody');
-  const foot = document.getElementById('drawerFoot');
-
-  if(!currentUser){
-    body.innerHTML = `<div class="drawer-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1.3" fill="currentColor"/><circle cx="18" cy="21" r="1.3" fill="currentColor"/><path d="M2.5 3h2.2l2 12.2a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L21 7H6"/></svg>
-      <div>Sign in to see your cart.</div>
-      <button class="btn" onclick="openAuth()">Sign in with Google</button>
-    </div>`;
-    foot.innerHTML = '';
-    return;
-  }
-
-  if(cartItems.length===0){
-    body.innerHTML = `<div class="drawer-empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1.3" fill="currentColor"/><circle cx="18" cy="21" r="1.3" fill="currentColor"/><path d="M2.5 3h2.2l2 12.2a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L21 7H6"/></svg>
-      <div>Your cart is empty.<br>Time to find something handmade.</div>
-    </div>`;
-    foot.innerHTML = '';
-    return;
-  }
-
-  body.innerHTML = cartItems.map(c => `
-    <div class="cart-item">
-      <div class="thumb-sm">${thumbSVG(c.seed)}</div>
-      <div class="ci-info">
-        <span class="ci-title">${c.title}</span>
-        <span class="ci-price">₹${c.price.toLocaleString('en-IN')}</span>
-        <div class="qty-row">
-          <button class="qty-btn" onclick="changeQty(${c.productId},-1)" aria-label="Decrease quantity">−</button>
-          <span class="qty-val">${c.quantity}</span>
-          <button class="qty-btn" onclick="changeQty(${c.productId},1)" aria-label="Increase quantity">+</button>
-          <button class="remove-btn" onclick="removeFromCart(${c.productId})">Remove</button>
-        </div>
-      </div>
+  <!-- Cart Drawer -->
+  <div class="cart-drawer" id="cartDrawer">
+    <h2>Shopping Cart</h2>
+    <div id="cartItems" style="margin: 20px 0;"></div>
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--sage);">
+      <div style="margin: 10px 0;">Subtotal: ₹<span id="cartSubtotal">0</span></div>
+      <div style="margin: 10px 0;">Shipping: ₹<span id="cartShipping">0</span></div>
+      <div style="font-weight: bold; margin: 10px 0; font-size: 18px;">Total: ₹<span id="cartTotal">0</span></div>
+      <button class="btn-primary" onclick="goCheckout()" style="width: 100%; margin-top: 16px;">Proceed to Checkout</button>
     </div>
-  `).join('');
+  </div>
 
-  const subtotal = cartTotal();
-  const shipping = subtotal > 2000 ? 0 : 99;
-  const total = subtotal + shipping;
-  foot.innerHTML = `
-    <div class="totals-row"><span>Subtotal</span><span>₹${subtotal.toLocaleString('en-IN')}</span></div>
-    <div class="totals-row"><span>Shipping</span><span>${shipping===0?'Free':'₹'+shipping}</span></div>
-    <div class="totals-row grand"><span>Total</span><span>₹${total.toLocaleString('en-IN')}</span></div>
-    <button class="btn btn-full sage" style="margin-top:14px;" onclick="checkout()">Proceed to checkout</button>
-  `;
-}
-async function checkout(){
-  if(!currentUser){
-    closeCartDrawer();
-    openAuth();
-    showToast('Please sign in to checkout');
-    return;
-  }
-  try {
-    const result = await api('/api/checkout', { method: 'POST' });
-    showPaymentInfo(result.orderId, result.total);
-    cartItems = [];
-    updateCartUI();
-    closeCartDrawer();
-  } catch (e) {
-    if (e.code === 'empty_cart') {
-      showToast('Your cart is empty');
-    } else {
-      showToast('Checkout failed — please try again');
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+      <h2 style="margin-bottom: 20px;">Login / Register</h2>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Password">
+      </div>
+      <div class="form-group" id="nameField" style="display: none;">
+        <label>Full Name</label>
+        <input type="text" id="authName" placeholder="Your Name">
+      </div>
+      <button class="btn-primary" onclick="login()" style="width: 100%; margin: 20px 0;">Login</button>
+      <button class="btn-secondary" onclick="toggleRegister()" style="width: 100%;">Create New Account</button>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('checkoutModal')">✕</button>
+      <h2>Order Summary</h2>
+      <div id="checkoutItems" style="margin: 20px 0;"></div>
+      <div style="margin-top: 20px; padding: 16px; background: var(--cream); border-radius: 8px;">
+        <div>Subtotal: ₹<span id="checkoutSubtotal">0</span></div>
+        <div>Shipping: ₹<span id="checkoutShipping">0</span></div>
+        <div style="font-weight: bold; font-size: 18px;">Total: ₹<span id="checkoutTotal">0</span></div>
+      </div>
+      <h3 style="margin-top: 20px;">📱 Scan to Pay (UPI)</h3>
+      <div id="qrCode" style="margin: 20px auto; text-align: center;"></div>
+      <p style="font-size: 12px; color: var(--sage); text-align: center;">Scan this QR code with any UPI app to pay</p>
+      <div style="margin-top: 20px; padding: 16px; background: #fff3cd; border-radius: 8px; font-size: 12px;">
+        <strong>After Payment:</strong> Your order will show as "pending_payment". The store owner will verify your payment and confirm it from the admin panel.
+      </div>
+      <button class="btn-primary" onclick="placeOrder()" style="width: 100%; margin-top: 16px;">I've Paid - Place Order</button>
+    </div>
+  </div>
+
+  <!-- Orders Modal -->
+  <div class="modal-overlay" id="ordersModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('ordersModal')">✕</button>
+      <h2>Your Orders</h2>
+      <div id="ordersContainer" style="margin-top: 20px;"></div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard Modal -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-content" style="max-width: 700px;">
+      <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+      <h2>📊 Admin Dashboard</h2>
+      <p style="margin: 10px 0; color: var(--sage);">All Orders - Pending Payment Confirmation</p>
+      <div id="adminOrdersContainer" class="admin-orders"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const API = 'http://localhost:4000/api';
+    let currentUser = null;
+    let cart = [];
+    let isRegistering = false;
+
+    async function api(endpoint, options = {}) {
+      const url = `${API}${endpoint}`;
+      const response = await fetch(url, { credentials: 'include', ...options });
+      return response.json();
     }
-  }
-}
 
-/* ===================== DRAWER OPEN/CLOSE ===================== */
-function openCartDrawer(){
-  document.getElementById('cartDrawer').classList.add('show');
-  document.getElementById('overlay').classList.add('show');
-}
-function closeCartDrawer(){
-  document.getElementById('cartDrawer').classList.remove('show');
-  document.getElementById('overlay').classList.remove('show');
-}
-document.getElementById('cartBtn').addEventListener('click', openCartDrawer);
-document.getElementById('closeCart').addEventListener('click', closeCartDrawer);
-document.getElementById('overlay').addEventListener('click', ()=>{
-  closeCartDrawer();
-  closeAuth();
-});
+    async function init() {
+      const user = await api('/auth/me');
+      currentUser = user.user;
+      updateUI();
+      await loadProducts();
+      if (currentUser) await loadCart();
+    }
 
-/* ===================== AUTH (Google Sign-In) ===================== */
-function renderAuthArea(){
-  const area = document.getElementById('authArea');
-  if(currentUser){
-    const initials = currentUser.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    area.innerHTML = `
-      <div style="position:relative;">
-        <button class="user-chip" id="userChip" style="cursor:pointer;border:1px solid var(--line);" title="${currentUser.name}">
-          ${currentUser.picture_url ? `<img src="${currentUser.picture_url}" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">` : `<span class="avatar">${initials}</span>`}
-          <span>${currentUser.name}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:2px;"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div id="userMenu" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);min-width:200px;overflow:hidden;z-index:60;">
-          <div style="padding:12px 16px;border-bottom:1px solid var(--line);">
-            <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:13.5px;color:var(--ink);">${currentUser.name}</div>
-            <div style="font-family:'Inter',sans-serif;font-size:12px;color:rgba(36,29,22,0.55);margin-top:2px;">${currentUser.email}</div>
+    function updateUI() {
+      const userBtn = document.getElementById('userBtn');
+      if (currentUser) {
+        userBtn.textContent = currentUser.name;
+        document.getElementById('adminBtn').style.display = currentUser.isAdmin ? 'block' : 'none';
+      } else {
+        userBtn.textContent = 'Login';
+      }
+    }
+
+    async function loadProducts() {
+      const data = await api('/products');
+      const html = data.products.map(p => `
+        <div class="product-card">
+          <div class="category">${p.category}</div>
+          <h3>${p.title}</h3>
+          <p style="font-size: 13px; color: var(--sage);">${p.description}</p>
+          <div class="price">₹${p.price}</div>
+          <button class="btn-primary" onclick="addToCart(${p.id})" style="width: 100%;">Add to Cart</button>
+        </div>
+      `).join('');
+      document.getElementById('productsContainer').innerHTML = html;
+    }
+
+    async function addToCart(productId) {
+      if (!currentUser) { openModal('loginModal'); return; }
+      await api('/cart/add', { method: 'POST', body: JSON.stringify({ productId, quantity: 1 }) });
+      await loadCart();
+    }
+
+    async function loadCart() {
+      const data = await api('/cart');
+      cart = data.items;
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const subtotal = cart.reduce((s, c) => s + c.price * c.quantity, 0);
+      const shipping = subtotal > 2000 ? 0 : 99;
+      const total = subtotal + shipping;
+      
+      document.getElementById('cartCount').textContent = cart.reduce((s, c) => s + c.quantity, 0);
+      document.getElementById('cartItems').innerHTML = cart.map(c => `
+        <div style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px; background: var(--cream); border-radius: 4px;">
+          <div>${c.title} x${c.quantity}</div>
+          <div>₹${c.price * c.quantity}</div>
+        </div>
+      `).join('');
+      document.getElementById('cartSubtotal').textContent = subtotal;
+      document.getElementById('cartShipping').textContent = shipping;
+      document.getElementById('cartTotal').textContent = total;
+    }
+
+    async function login() {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      if (!email || !password) return alert('Fill all fields');
+      
+      if (isRegistering) {
+        const name = document.getElementById('authName').value;
+        if (!name) return alert('Enter your name');
+        const res = await api('/auth/register', { method: 'POST', body: JSON.stringify({ email, password, name }) });
+        if (res.error) return alert(res.error);
+        currentUser = res.user;
+      } else {
+        const res = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+        if (res.error) return alert('Invalid credentials');
+        currentUser = res.user;
+      }
+      
+      updateUI();
+      closeModal('loginModal');
+      await loadCart();
+    }
+
+    async function logout() {
+      await api('/auth/logout', { method: 'POST' });
+      currentUser = null;
+      updateUI();
+      closeModal('loginModal');
+    }
+
+    function toggleRegister() {
+      isRegistering = !isRegistering;
+      document.getElementById('nameField').style.display = isRegistering ? 'block' : 'none';
+      document.querySelector('.modal-content button:nth-of-type(1)').textContent = isRegistering ? 'Create Account' : 'Login';
+    }
+
+    function toggleCart() {
+      document.getElementById('cartDrawer').classList.toggle('open');
+    }
+
+    function toggleUserMenu() {
+      if (!currentUser) { openModal('loginModal'); } else {
+        document.getElementById('userDropdown').classList.toggle('show');
+      }
+    }
+
+    async function goCheckout() {
+      if (cart.length === 0) return alert('Cart is empty');
+      const subtotal = cart.reduce((s, c) => s + c.price * c.quantity, 0);
+      const shipping = subtotal > 2000 ? 0 : 99;
+      const total = subtotal + shipping;
+      
+      document.getElementById('checkoutItems').innerHTML = cart.map(c => `
+        <div>${c.title} x${c.quantity} = ₹${c.price * c.quantity}</div>
+      `).join('');
+      document.getElementById('checkoutSubtotal').textContent = subtotal;
+      document.getElementById('checkoutShipping').textContent = shipping;
+      document.getElementById('checkoutTotal').textContent = total;
+      
+      document.getElementById('qrCode').innerHTML = '';
+      const upiString = `upi://pay?pa=varuntej.g56-1@oksbi&pn=KalalokamBySri&am=${total}`;
+      new QRCode(document.getElementById('qrCode'), { text: upiString, width: 200, height: 200 });
+      
+      closeModal('checkoutModal');
+      openModal('checkoutModal');
+    }
+
+    async function placeOrder() {
+      const res = await api('/checkout', { method: 'POST' });
+      if (res.error) return alert(res.error);
+      alert(`Order placed! Order ID: ${res.orderId}\n\nStatus: Pending Payment Confirmation\n\nWe'll confirm once payment is received.`);
+      cart = [];
+      updateCartUI();
+      closeModal('checkoutModal');
+      toggleCart();
+    }
+
+    async function showOrders() {
+      const data = await api('/orders');
+      const html = data.orders.map(o => `
+        <div class="order-item">
+          <strong>Order #${o.id}</strong>
+          <div class="order-status status-${o.status === 'pending_payment' ? 'pending' : 'placed'}">
+            Status: ${o.status === 'pending_payment' ? '⏳ Pending Payment' : '✓ Placed'}
           </div>
-          <button id="viewProfileBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);">My profile</button>
-          <button id="viewOrdersBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--ink);">View my orders</button>
-          <button id="adminBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--gold);font-weight:bold;display:none;" onclick="showAdminDashboard()">📊 Admin Dashboard</button>
-          <button id="logoutBtn" style="width:100%;text-align:left;padding:11px 16px;background:none;border:none;font-family:'Inter',sans-serif;font-size:13.5px;color:var(--terracotta-dark);border-top:1px solid var(--line);">Log out</button>
+          <div style="font-size: 12px; margin: 8px 0;">Total: ₹${o.total}</div>
+          <div style="font-size: 12px; color: var(--sage);">${new Date(o.createdAt).toLocaleString()}</div>
         </div>
-      </div>
-    `;
-    const chip = document.getElementById('userChip');
-    const menu = document.getElementById('userMenu');
-    chip.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-    });
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-    document.getElementById('viewOrdersBtn').addEventListener('click', showOrders);
-    document.getElementById('viewProfileBtn').addEventListener('click', showProfile);
+      `).join('');
+      document.getElementById('ordersContainer').innerHTML = html || '<p>No orders yet</p>';
+      openModal('ordersModal');
+    }
 
-    // Track the current menu/chip so the single document-level listener
-    // (registered once, below) always closes whichever menu is live —
-    // this avoids stacking a new document listener on every render.
-    window.__authMenuRefs = { chip, menu };
-  } else {
-    area.innerHTML = `<button class="btn outline" id="loginBtn">Sign in</button>`;
-    document.getElementById('loginBtn').addEventListener('click', openAuth);
-    window.__authMenuRefs = null;
-  }
-}
-// Registered exactly once, ever — closes the dropdown when clicking
-// anywhere outside the current chip/menu pair.
-document.addEventListener('click', (e)=>{
-  const refs = window.__authMenuRefs;
-  if (!refs) return;
-  if (!refs.chip.contains(e.target) && !refs.menu.contains(e.target)) {
-    refs.menu.style.display = 'none';
-  }
-});
-async function showOrders(){
-  document.getElementById('userMenu').style.display = 'none';
-  try {
-    const { orders } = await api('/api/orders');
-    const body = orders.length === 0
-      ? `<p style="font-family:'Inter',sans-serif;font-size:13.5px;color:rgba(36,29,22,0.6);text-align:center;padding:20px 0;">No orders yet.</p>`
-      : orders.map(o => `
-          <div style="border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px;">
-            <div style="display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-size:13px;color:rgba(36,29,22,0.55);margin-bottom:6px;">
-              <span>Order #${o.id} · ${new Date(o.createdAt).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
-              <span style="text-transform:capitalize;font-weight:600;color:var(--sage);">${o.status}</span>
-            </div>
-            ${o.items.map(i => `<div style="font-family:'Lora',serif;font-size:13.5px;color:var(--ink);display:flex;justify-content:space-between;padding:3px 0;"><span>${i.title} × ${i.quantity}</span><span>₹${(i.unitPrice*i.quantity).toLocaleString('en-IN')}</span></div>`).join('')}
-            <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:14px;text-align:right;margin-top:8px;border-top:1px solid var(--line);padding-top:8px;">Total ₹${o.total.toLocaleString('en-IN')}</div>
+    async function showAdminDashboard() {
+      const data = await api('/admin/orders');
+      const html = data.orders.map(o => `
+        <div class="order-item">
+          <div style="display: flex; justify-content: space-between;">
+            <strong>Order #${o.id}</strong>
+            <span class="order-status status-${o.status === 'pending_payment' ? 'pending' : 'placed'}">${o.status === 'pending_payment' ? '⏳ Pending' : '✓ Placed'}</span>
           </div>
-        `).join('');
-
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay show';
-    overlay.id = 'ordersOverlay';
-    overlay.innerHTML = `
-      <div class="auth-modal" style="max-height:80vh;overflow-y:auto;">
-        <button class="modal-close" id="closeOrders">✕</button>
-        <h3 style="font-family:'Yatra One',cursive;font-size:26px;margin:0 0 18px;">My orders</h3>
-        ${body}
-      </div>
-    `;
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', (e)=>{ if(e.target.id === 'ordersOverlay') overlay.remove(); });
-    document.getElementById('closeOrders').addEventListener('click', ()=> overlay.remove());
-  } catch (e) {
-    showToast('Could not load your orders');
-  }
-}
-
-async function showProfile(){
-  document.getElementById('userMenu').style.display = 'none';
-  const u = currentUser;
-
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay show';
-  overlay.id = 'profileOverlay';
-  overlay.innerHTML = `
-    <div class="auth-modal" style="max-height:86vh;overflow-y:auto;text-align:left;">
-      <button class="modal-close" id="closeProfile">✕</button>
-      <h3 style="font-family:'Yatra One',cursive;font-size:26px;margin:0 0 4px;">My profile</h3>
-      <p style="font-family:'Inter',sans-serif;font-size:13px;color:rgba(36,29,22,0.55);margin:0 0 22px;">${u.email}</p>
-
-      <h4 style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--sage);margin:0 0 12px;">Phone number</h4>
-      <div id="phoneSection"></div>
-
-      <h4 style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--sage);margin:24px 0 12px;">Delivery address</h4>
-      <div class="field"><label>Address line 1</label><input type="text" id="pAddr1" placeholder="House no, street" value="${u.address.line1}"></div>
-      <div class="field"><label>Address line 2 (optional)</label><input type="text" id="pAddr2" placeholder="Apartment, landmark" value="${u.address.line2}"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="field"><label>City</label><input type="text" id="pCity" value="${u.address.city}"></div>
-        <div class="field"><label>State</label><input type="text" id="pState" value="${u.address.state}"></div>
-      </div>
-      <div class="field" style="max-width:160px;"><label>Pincode</label><input type="text" id="pPincode" value="${u.address.pincode}" inputmode="numeric"></div>
-      <div class="auth-error" id="profileError"></div>
-      <div class="auth-error" id="profileSuccess" style="display:none;background:rgba(92,122,94,0.12);color:var(--sage);"></div>
-      <button class="btn btn-full" id="saveAddressBtn" style="margin-top:6px;">Save address</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e)=>{ if(e.target.id === 'profileOverlay') overlay.remove(); });
-  document.getElementById('closeProfile').addEventListener('click', ()=> overlay.remove());
-
-  renderPhoneSection(u);
-
-  document.getElementById('saveAddressBtn').addEventListener('click', async ()=>{
-    const errBox = document.getElementById('profileError');
-    const okBox = document.getElementById('profileSuccess');
-    errBox.classList.remove('show'); okBox.style.display = 'none';
-    try {
-      const { user } = await api('/api/profile/address', {
-        method: 'PUT',
-        body: JSON.stringify({
-          line1: document.getElementById('pAddr1').value,
-          line2: document.getElementById('pAddr2').value,
-          city: document.getElementById('pCity').value,
-          state: document.getElementById('pState').value,
-          pincode: document.getElementById('pPincode').value
-        })
-      });
-      currentUser = user;
-      okBox.textContent = 'Address saved.';
-      okBox.style.display = 'block';
-      showToast('Address saved');
-    } catch (e) {
-      errBox.textContent = e.message || 'Could not save address.';
-      errBox.classList.add('show');
+          <div style="font-size: 13px; margin: 8px 0;"><strong>${o.customerName}</strong></div>
+          <div style="font-size: 12px; color: var(--sage);">${o.customerEmail}</div>
+          <div style="margin: 8px 0; font-size: 13px;">Items: ${o.items.map(i => `${i.title} x${i.quantity}`).join(', ')}</div>
+          <div style="font-weight: bold;">Total: ₹${o.total}</div>
+          ${o.status === 'pending_payment' ? `<button class="btn-primary" onclick="confirmPayment(${o.id})" style="width: 100%; margin-top: 8px;">✓ Confirm Payment</button>` : ''}
+        </div>
+      `).join('');
+      document.getElementById('adminOrdersContainer').innerHTML = html;
+      openModal('adminModal');
     }
-  });
-}
 
-function renderPhoneSection(u){
-  const box = document.getElementById('phoneSection');
-  if (u.phoneVerified) {
-    box.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:14px;">
-        <span style="color:var(--sage);font-weight:700;">✓</span>
-        <span>${u.phone}</span>
-        <span style="font-size:11.5px;color:var(--sage);font-weight:600;background:rgba(92,122,94,0.12);padding:2px 9px;border-radius:10px;">Verified</span>
-        <button id="changePhoneBtn" style="margin-left:auto;background:none;border:none;font-size:12.5px;color:var(--terracotta-dark);text-decoration:underline;">Change</button>
-      </div>
-    `;
-    document.getElementById('changePhoneBtn').addEventListener('click', ()=> renderPhoneEntryForm(u.phone));
-  } else {
-    renderPhoneEntryForm(u.phone || '');
-  }
-}
-
-function renderPhoneEntryForm(prefill){
-  const box = document.getElementById('phoneSection');
-  box.innerHTML = `
-    <div style="display:flex;gap:10px;">
-      <input type="text" id="pPhone" placeholder="+91 98765 43210" value="${prefill || ''}" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:14.5px;">
-      <button class="btn outline" id="sendOtpBtn" style="white-space:nowrap;">Send code</button>
-    </div>
-    <div class="auth-error" id="phoneError"></div>
-    <div id="otpRow" style="display:none;margin-top:12px;">
-      <div style="display:flex;gap:10px;">
-        <input type="text" id="pOtp" placeholder="6-digit code" maxlength="6" inputmode="numeric" style="flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:14.5px;letter-spacing:2px;">
-        <button class="btn sage" id="verifyOtpBtn" style="white-space:nowrap;">Verify</button>
-      </div>
-      <p id="otpHint" style="font-family:'Inter',sans-serif;font-size:12px;color:rgba(36,29,22,0.5);margin:8px 0 0;"></p>
-    </div>
-  `;
-
-  document.getElementById('sendOtpBtn').addEventListener('click', async ()=>{
-    const phoneErr = document.getElementById('phoneError');
-    phoneErr.classList.remove('show');
-    const phone = document.getElementById('pPhone').value.trim();
-    try {
-      const result = await api('/api/profile/phone/send-otp', { method: 'POST', body: JSON.stringify({ phone }) });
-      document.getElementById('otpRow').style.display = 'block';
-      const hint = document.getElementById('otpHint');
-      // dev_only_code is only present because no SMS provider is configured yet —
-      // see the TODO in server.js. Once a provider is wired in, this field
-      // will no longer be sent and this line should be removed.
-      hint.textContent = result.dev_only_code
-        ? `SMS isn't connected yet, so here's your code for testing: ${result.dev_only_code}`
-        : 'We sent a 6-digit code by SMS.';
-      showToast('Verification code generated');
-    } catch (e) {
-      phoneErr.textContent = e.message || 'Could not send code.';
-      phoneErr.classList.add('show');
+    async function confirmPayment(orderId) {
+      const res = await api(`/admin/confirm-payment`, { method: 'POST', body: JSON.stringify({ orderId }) });
+      if (res.error) return alert(res.error);
+      alert('Payment confirmed! Order status updated to "placed"');
+      await showAdminDashboard();
     }
-  });
 
-  document.getElementById('verifyOtpBtn').addEventListener('click', async ()=>{
-    const phoneErr = document.getElementById('phoneError');
-    phoneErr.classList.remove('show');
-    const code = document.getElementById('pOtp').value.trim();
-    try {
-      const { user } = await api('/api/profile/phone/verify-otp', { method: 'POST', body: JSON.stringify({ code }) });
-      currentUser = user;
-      showToast('Phone number verified');
-      renderPhoneSection(user);
-    } catch (e) {
-      phoneErr.textContent = e.message || 'Verification failed.';
-      phoneErr.classList.add('show');
-    }
-  });
-}
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
-async function logout(){
-  await api('/api/auth/logout', { method: 'POST' }).catch(()=>{});
-  currentUser = null;
-  cartItems = [];
-  renderAuthArea();
-  updateCartUI();
-  showToast('Logged out');
-}
-
-function openAuth(){
-  document.getElementById('authOverlay').classList.add('show');
-}
-function closeAuth(){
-  document.getElementById('authOverlay').classList.remove('show');
-}
-document.getElementById('closeAuth').addEventListener('click', closeAuth);
-document.getElementById('authOverlay').addEventListener('click', (e)=>{
-  // Only close when the backdrop itself is clicked, not the modal card inside it.
-  if (e.target.id === 'authOverlay') closeAuth();
-});
-document.addEventListener('keydown', (e)=>{
-  if (e.key === 'Escape') { closeAuth(); closeCartDrawer(); }
-});
-
-// Called automatically by Google's script once the visitor picks an
-// account in the Google popup. `response.credential` is a signed JWT —
-// we send it to our backend, which verifies it directly with Google.
-async function handleGoogleCredentialResponse(response){
-  const errBox = document.getElementById('authError');
-  errBox.classList.remove('show');
-
-  // Safety net: if the backend call hangs for any reason, don't leave
-  // the visitor staring at a frozen popup — show an error after 8s.
-  const timeoutId = setTimeout(()=>{
-    errBox.textContent = 'This is taking longer than expected. Check your connection and try again, or close this window.';
-    errBox.classList.add('show');
-  }, 8000);
-
-  try {
-    const { user } = await api('/api/auth/google', {
-      method: 'POST',
-      body: JSON.stringify({ credential: response.credential })
-    });
-    clearTimeout(timeoutId);
-    currentUser = user;
-    renderAuthArea();
-    await loadCart();
-    updateCartUI();
-    closeAuth();
-    showToast(`Welcome, ${user.name.split(' ')[0]}!`);
-  } catch (e) {
-    clearTimeout(timeoutId);
-    errBox.textContent = e.message && e.status ? `Sign-in failed: ${e.message}` : 'Sign-in failed. Please try again, or close this window and retry.';
-    errBox.classList.add('show');
-  }
-}
-
-function initGoogleButton(){
-  const placeholderId = GOOGLE_CLIENT_ID === '938334556620-liqgqfd68n0nkbms0b55pnelsfaqu6me.apps.googleusercontent.com' || !GOOGLE_CLIENT_ID;
-  if (placeholderId) {
-    document.getElementById('googleFallbackNote').style.display = 'block';
-    return;
-  }
-  if (!window.google || !window.google.accounts) {
-    // Google script not loaded yet — try again shortly.
-    setTimeout(initGoogleButton, 300);
-    return;
-  }
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleCredentialResponse
-  });
-  google.accounts.id.renderButton(
-    document.getElementById('googleBtnContainer'),
-    { theme: 'outline', size: 'large', shape: 'pill', text: 'continue_with', width: 300 }
-  );
-}
-
-/* ===================== TOAST ===================== */
-let toastTimer;
-function showToast(msg){
-  const toast = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> toast.classList.remove('show'), 2600);
-}
-
-/* ===================== NAV SMOOTH SCROLL ===================== */
-document.querySelectorAll('.nav-links a').forEach(a=>{
-  a.addEventListener('click', function(){
-    document.querySelectorAll('.nav-links a').forEach(x=>x.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
-function scrollToShop(){
-  document.getElementById('shop').scrollIntoView({behavior:'smooth'});
-}
-
-/* ===================== INIT ===================== */
-(async function init(){
-  renderRail();
-  try {
-    await loadProducts();
-  } catch (e) {
-    showToast('Could not load products — is the backend running?');
-  }
-  renderProducts();
-
-  try {
-    await loadSession();
-  } catch (e) {
-    currentUser = null;
-  }
-  renderAuthArea();
-  updateCartUI();
-  initGoogleButton();
-})();
-
-// ===================== PAYMENT INFO =====================
-function showPaymentInfo(orderId, total) {
-  document.getElementById('paymentOverlay').classList.add('show');
-  const qrContainer = document.getElementById('qrCode');
-  qrContainer.innerHTML = '';
-  const upiString = 'upi://pay?pa=varuntej.g56-1@oksbi&pn=KalalokamBySri&am=' + total;
-  new QRCode(qrContainer, {
-    text: upiString,
-    width: 200,
-    height: 200,
-    colorDark: '#241D16',
-    colorLight: '#FFFFFF'
-  });
-}
-</script>
-
+    init();
+  </script>
 </body>
 </html>
-
-// ===================== ADMIN DASHBOARD =====================
-async function showAdminDashboard(){
-  const resp = await api('/api/admin/orders', { method: 'GET' });
-  if(!resp || !resp.orders) { showToast('Could not load orders'); return; }
-  
-  let html = '<h3 style="font-family:Yatra One;font-size:24px;margin:0 0 18px;">📊 All Customer Orders</h3>';
-  
-  if(resp.orders.length === 0) {
-    html += '<p>No orders yet</p>';
-  } else {
-    html += '<div style="max-height:500px;overflow-y:auto;">';
-    resp.orders.forEach(order => {
-      const date = new Date(order.createdAt).toLocaleDateString();
-      html += `<div style="border:1px solid var(--sage);padding:12px;margin:10px 0;border-radius:8px;">
-        <div style="font-weight:bold;">Order #${order.id}</div>
-        <div style="font-size:12px;color:var(--sage);">Customer: ${order.customerName} (${order.customerEmail})</div>
-        <div style="font-size:12px;">Phone: ${order.customerPhone}</div>
-        <div style="font-size:12px;">Address: ${order.customerAddress}</div>
-        <div style="font-size:12px;">Date: ${date}</div>
-        <div style="margin-top:8px;padding:8px;background:rgba(92,122,94,0.08);border-radius:6px;">
-          <div style="font-weight:bold;font-size:13px;">Items:</div>`;
-      order.items.forEach(item => {
-        html += `<div style="font-size:11px;">• ${item.title} x${item.quantity} = ₹${item.unitPrice * item.quantity}</div>`;
-      });
-      html += `</div>
-        <div style="margin-top:10px;font-weight:bold;">
-          Subtotal: ₹${order.subtotal} | Shipping: ₹${order.shipping} | <span style="color:var(--gold);">Total: ₹${order.total}</span>
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-  }
-  
-  const modal = document.createElement('div');
-  modal.className = 'modal-overlay show';
-  modal.id = 'adminModal';
-  modal.innerHTML = `<div class="auth-modal" style="max-width:600px;"><button class="modal-close" onclick="document.getElementById('adminModal').remove()">✕</button>${html}</div>`;
-  document.body.appendChild(modal);
-  modal.addEventListener('click', e => { if(e.target.id==='adminModal') modal.remove(); });
-}
-
-function checkAdminAndShowButton(){
-  if(currentUser && currentUser.email === 'gudimellavaruntej@gmail.com'){
-    document.getElementById('adminBtn').style.display = 'block';
-  } else {
-    document.getElementById('adminBtn').style.display = 'none';
-  }
-}
-
-// Call checkAdminAndShowButton after user loads
-const origRenderAuthArea = renderAuthArea;
-renderAuthArea = function() {
-  origRenderAuthArea();
-  setTimeout(checkAdminAndShowButton, 100);
-};
